@@ -58,6 +58,21 @@ jobs:
             exit 1
           fi
 
+      # 早间（UTC 0 点档 = 北京 8 点档）推送瘦身版：
+      #   每个 RSS 源 6→3 条、每个关键词组 2→1 条、关闭 AI 日总结
+      # 晚间（UTC 12 点档 = 北京 20 点档）用 config.yaml 完整配置
+      # 手动触发时按当前 UTC 时间判断属于哪档
+      - name: Apply morning overrides (lighter digest)
+        run: |
+          if [ "$(date -u +%H)" -lt 6 ]; then
+            sed -i "s/max_items: 6/max_items: 3/" config/config.yaml
+            sed -i "s/max_news_per_keyword: 2/max_news_per_keyword: 1/" config/config.yaml
+            sed -i "s/enabled: true   # AI_DAILY_SUMMARY/enabled: false  # AI_DAILY_SUMMARY/" config/config.yaml
+            echo "Morning mode: lighter digest, AI summary off"
+          else
+            echo "Evening mode: full digest"
+          fi
+
       - name: Run crawler
         env:
           FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
