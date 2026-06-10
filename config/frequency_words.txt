@@ -4,11 +4,15 @@
 #   只作用于热榜平台（微博/知乎/头条/百度）；
 #   精选 RSS 走独立展示区，不经过这里的过滤。
 #
+#   每组条数由 config.yaml 的 report.max_news_per_keyword 全局控制
+#   （晚报 2 条/组，早报 1 条/组），所以这里不要加 @数字
+#   （组内 @数字 会覆盖全局限制）。
+#
 #   语法（完整说明见上游模板文件）：
 #   · 词组之间用空行分隔，组内关键词是"或"的关系
 #   · [组别名] 放词组第一行
 #   · /正则/ 可一行匹配多个词（自动忽略大小写）
-#   · !词 = 组内排除；@数字 = 该组最多显示条数
+#   · !词 = 组内排除
 #
 #   用法: 全文复制，粘贴覆盖 fork 仓库的 config/frequency_words.txt
 # ═══════════════════════════════════════════════════════════════
@@ -22,41 +26,31 @@
 
 [AI·大模型]
 /人工智能|大模型|AGI|AIGC|AI/
-@10
 
 [OpenAI]
 /\bOpenAI\b|ChatGPT|\bGPT\b|\bSora\b|奥特曼|\bSam Altman\b/
-@5
 
 [Anthropic·Claude]
 /\bAnthropic\b|\bClaude\b|\bDario Amodei\b/
-@5
 
 [DeepSeek]
 /深度求索|梁文锋|\bDeepSeek\b/
-@5
 
 [谷歌·Gemini]
 /\bGemini\b|\bDeepMind\b|谷歌/
-@5
 
 [国产大模型]
 /豆包|Kimi|通义|千问|\bQwen\b|文心|智谱|\bGLM\b|混元|元宝|MiniMax|月之暗面|阶跃/
-@6
 
 [智能体·AI编程]
 /智能体|\bAgent\b|AI编程|Cursor|Copilot|Claude Code|Codex/
-@5
 
 [机器人·具身智能]
 /具身智能|人形机器人|宇树|王兴兴|智元|机器人/
-@5
 
 [芯片·算力]
 /英伟达|黄仁勋|\bNVIDIA\b|算力|芯片|台积电|\bGPU\b/
-@6
 
 [科技大厂]
 /苹果|\bApple\b|iPhone|华为|鸿蒙|小米|字节跳动|抖音|腾讯|微信|阿里|马斯克|特斯拉/
 !水果
-@6

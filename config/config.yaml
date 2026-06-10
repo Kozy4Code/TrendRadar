@@ -58,11 +58,8 @@ rss:
     enabled: true
     max_age_days: 1                   # 只推 1 天内的文章
 
+  # 顺序即推送展示顺序：BestBlogs 文章 → BestBlogs 早报 → AIHOT
   feeds:
-    - id: "aihot"
-      name: "AIHOT 每日精选"
-      url: "https://aihot.virxact.com/feed.xml"
-
     - id: "bestblogs-ai"
       name: "BestBlogs AI 高分文章"
       url: "https://www.bestblogs.dev/feeds/rss?category=ai&minScore=90"
@@ -70,6 +67,10 @@ rss:
     - id: "bestblogs-daily-brief"
       name: "BestBlogs 每日早报"
       url: "https://www.bestblogs.dev/feeds/rss/daily-brief"
+
+    - id: "aihot"
+      name: "AIHOT 每日精选"
+      url: "https://aihot.virxact.com/feed.xml"
 
     # 可选：BestBlogs 产品类高分文章（PM 方向有价值）。
     # 想看就把 enabled 改为 true，并把 id 加进下方 display.standalone.rss_feeds
@@ -87,7 +88,7 @@ report:
   display_mode: "keyword"
   sort_by_position_first: false
   rank_threshold: 5
-  max_news_per_keyword: 0
+  max_news_per_keyword: 2             # 晚报每个关键词组最多 2 条；早报由 workflow 自动降为 1
 
 
 # ===============================================================
@@ -133,8 +134,8 @@ display:
 
   standalone:
     platforms: []
-    rss_feeds: ["aihot", "bestblogs-ai", "bestblogs-daily-brief"]
-    max_items: 15                     # 每个源最多 15 条，控制消息长度
+    rss_feeds: ["bestblogs-ai", "bestblogs-daily-brief", "aihot"]
+    max_items: 6                      # 晚报每源 6 条；早报由 workflow 自动降为 3（见 crawler.yml）
 
 
 # ===============================================================
@@ -213,11 +214,12 @@ ai:
 
 
 # ===============================================================
-# 9. AI 分析功能
-# [定制] 暂不启用。想要每日 AI 简报时：此处改 true + 配 AI_API_KEY Secret
+# 9. AI 分析功能（晚间日总结）
+# [定制] 配好 AI_API_KEY Secret 后把下行改为 true。
+#        行尾 AI_DAILY_SUMMARY 标记勿动：早间运行时 workflow 靠它自动关闭 AI
 # ===============================================================
 ai_analysis:
-  enabled: false
+  enabled: false   # AI_DAILY_SUMMARY
   language: "Chinese"
   prompt_file: "ai_analysis_prompt.txt"
   mode: "follow_report"
