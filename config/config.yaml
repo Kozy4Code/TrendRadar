@@ -130,7 +130,7 @@ display:
     new_items: false
     rss: false                        # [定制] 关闭：精选源已在独立展示区完整展示
     standalone: true                  # [定制] 开启
-    ai_analysis: false                # [定制] 暂不启用（启用需配 AI_API_KEY）
+    ai_analysis: true                 # [定制] 晚报末尾的 AI 日总结（早间由 workflow 关闭分析）
 
   standalone:
     platforms: []
@@ -214,12 +214,13 @@ ai:
 
 
 # ===============================================================
-# 9. AI 分析功能（晚间日总结）
-# [定制] 配好 AI_API_KEY Secret 后把下行改为 true。
-#        行尾 AI_DAILY_SUMMARY 标记勿动：早间运行时 workflow 靠它自动关闭 AI
+# 9. AI 分析功能（晚间日总结 + 应用风向研判）
+# [定制] 已启用，API key 在 GitHub Secrets 的 AI_API_KEY（DeepSeek）。
+#        行尾 AI_DAILY_SUMMARY 标记勿动：早间运行时 workflow 靠它自动关闭 AI。
+#        提示词已替换为应用导向的定制版（ai_analysis_prompt.txt）
 # ===============================================================
 ai_analysis:
-  enabled: false   # AI_DAILY_SUMMARY
+  enabled: true   # AI_DAILY_SUMMARY
   language: "Chinese"
   prompt_file: "ai_analysis_prompt.txt"
   mode: "follow_report"
