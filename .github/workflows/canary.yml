@@ -1,0 +1,25 @@
+# ═══════════════════════════════════════════════════════════
+#   临时诊断 workflow —— 验证本仓库的定时调度是否工作
+#
+#   背景：GitHub 已知 bug（actions/runner#4210）会让新仓库的
+#   scheduled workflow 永不触发且不留记录。本文件以高频 cron
+#   作为"金丝雀"：只要它跑起来，说明调度器已恢复。
+#
+#   ⚠️ 确认 crawler.yml 的定时正常触发后，删除本文件。
+# ═══════════════════════════════════════════════════════════
+
+name: Schedule Canary
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - run: echo "schedule fired at $(date -u '+%Y-%m-%d %H:%M:%S UTC') event=${{ github.event_name }}"
