@@ -49,16 +49,17 @@ platforms:
 
 # ===============================================================
 # 3. 数据源 - RSS 订阅
-# [定制] 三个精选源，内容在源头已做过质量筛选
+# [定制] 三个精选源（源头已做质量筛选）+ 六个个人关注源（低频，
+#        多数日子 0 条，只在对方发新内容当天出现）
 # ===============================================================
 rss:
   enabled: true
 
   freshness_filter:
     enabled: true
-    max_age_days: 1                   # 只推 1 天内的文章
+    max_age_days: 1                   # 只推 1 天内的文章（每天跑 2 次，1 天窗口不漏文）
 
-  # 顺序即推送展示顺序：BestBlogs 文章 → BestBlogs 早报 → AIHOT
+  # 顺序即推送展示顺序：BestBlogs 文章 → BestBlogs 早报 → AIHOT → 个人关注源
   feeds:
     - id: "bestblogs-ai"
       name: "BestBlogs AI 高分文章"
@@ -71,6 +72,38 @@ rss:
     - id: "aihot"
       name: "AIHOT 每日精选"
       url: "https://aihot.virxact.com/feed.xml"
+
+    # ---- 个人关注源（2026-06-11 新增，均已实测可用）----
+    # Simon Willison：用只含长文的 entries feed，勿换成 tags/*.atom
+    # （链接博客日更多条会占满版面，且多 tag feed 互相重复）
+    - id: "simon-willison"
+      name: "Simon Willison"
+      url: "https://simonwillison.net/atom/entries/"
+
+    - id: "ethan-mollick"
+      name: "Ethan Mollick · One Useful Thing"
+      url: "https://www.oneusefulthing.org/feed"
+
+    # The Batch 官方无 RSS，走 OpenRSS 第三方桥接（标题质量一般，
+    # 显示为 "issue NNN"；桥接失效则该块消失，不影响其他源）
+    - id: "the-batch"
+      name: "Andrew Ng · The Batch"
+      url: "https://openrss.org/feed/www.deeplearning.ai/the-batch"
+
+    - id: "karpathy"
+      name: "Andrej Karpathy"
+      url: "https://karpathy.bearblog.dev/feed/"
+
+    - id: "bensbites"
+      name: "Ben Tossell · Ben's Bites"
+      url: "https://www.bensbites.com/feed"
+
+    # Rowan Cheung 的大厂访谈播客（The Rundown 旗下）。
+    # 注意：The Rundown 每日文章版无 RSS、beehiiv 播客 feed 有
+    # Cloudflare UA 拦截，仅此 Buzzsprout 源可用
+    - id: "rowans-notes"
+      name: "Rowan's Notes 访谈播客"
+      url: "https://rss.buzzsprout.com/2189775.rss"
 
     # 可选：BestBlogs 产品类高分文章（PM 方向有价值）。
     # 想看就把 enabled 改为 true，并把 id 加进下方 display.standalone.rss_feeds
@@ -119,7 +152,7 @@ ai_filter:
 # ===============================================================
 display:
   region_order:
-    - standalone                      # 1️⃣ 精选 RSS（AIHOT + BestBlogs）
+    - standalone                      # 1️⃣ 精选 RSS（BestBlogs + AIHOT + 个人关注源）
     - hotlist                         # 2️⃣ 热榜 AI/科技关键词匹配
     - rss
     - new_items
@@ -134,7 +167,9 @@ display:
 
   standalone:
     platforms: []
-    rss_feeds: ["bestblogs-ai", "bestblogs-daily-brief", "aihot"]
+    rss_feeds: ["bestblogs-ai", "bestblogs-daily-brief", "aihot",
+                "simon-willison", "ethan-mollick", "the-batch",
+                "karpathy", "bensbites", "rowans-notes"]
     max_items: 6                      # 晚报每源 6 条；早报由 workflow 自动降为 3（见 crawler.yml）
 
 
