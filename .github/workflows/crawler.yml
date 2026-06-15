@@ -1,4 +1,4 @@
-# ═══════════════════════════════════════════════════════════════
+TEMP_TEST_LINE# ═══════════════════════════════════════════════════════════════
 #   Get Hot News —— Kozy 定制版（全自动，部署后零人工维护）
 #
 #   相对上游 crawler.yml 的改动：
@@ -8,6 +8,8 @@
 #      sansan0/TrendRadar 和数据源 ourongxing/newsnow 点 star 支持）
 #   3. 新增 Keepalive：仓库超 50 天无提交时自动创建空提交，
 #      避免触发 GitHub「60 天不活跃自动停用定时任务」规则
+#   4. 支持 Cloudflare Worker 通过 workflow_dispatch 传入 digest_mode，
+#      从外部准点触发早报/晚报；GitHub schedule 暂时保留作兜底
 #
 #   用法: 全文复制，粘贴覆盖 fork 仓库的 .github/workflows/crawler.yml
 # ═══════════════════════════════════════════════════════════════
@@ -22,6 +24,16 @@ on:
     - cron: "23 0,12 * * *"
 
   workflow_dispatch:
+    inputs:
+      digest_mode:
+        description: "Digest mode: auto infers from UTC hour; Cloudflare passes morning/evening"
+        required: false
+        default: "auto"
+        type: choice
+        options:
+          - auto
+          - morning
+          - evening
 
 concurrency:
   group: crawler-${{ github.ref_name }}
@@ -63,16 +75,32 @@ jobs:
       # 早间（UTC 0 点档 = 北京 8 点档）推送瘦身版：
       #   每个 RSS 源 6→3 条、每个关键词组 2→1 条、关闭 AI 日总结
       # 晚间（UTC 12 点档 = 北京 20 点档）用 config.yaml 完整配置
-      # 手动触发时按当前 UTC 时间判断属于哪档
+      # Cloudflare 触发时会显式传 digest_mode=morning/evening；
+      # GitHub schedule 或手动不填时使用 auto，继续按当前 UTC 时间兜底判断。
       - name: Apply morning overrides (lighter digest)
+        env:
+          DIGEST_MODE: ${{ github.event.inputs.digest_mode || 'auto' }}
         run: |
-          if [ "$(date -u +%H)" -lt 6 ]; then
+          if [ "$DIGEST_MODE" = "auto" ]; then
+            if [ "$(date -u +%H)" -lt 6 ]; then
+              DIGEST_MODE="morning"
+            else
+              DIGEST_MODE="evening"
+            fi
+          fi
+
+          echo "Digest mode: ${DIGEST_MODE}"
+
+          if [ "$DIGEST_MODE" = "morning" ]; then
             sed -i "s/max_items: 6/max_items: 3/" config/config.yaml
             sed -i "s/max_news_per_keyword: 2/max_news_per_keyword: 1/" config/config.yaml
             sed -i "s/enabled: true   # AI_DAILY_SUMMARY/enabled: false  # AI_DAILY_SUMMARY/" config/config.yaml
             echo "Morning mode: lighter digest, AI summary off"
-          else
+          elif [ "$DIGEST_MODE" = "evening" ]; then
             echo "Evening mode: full digest"
+          else
+            echo "Invalid digest_mode: ${DIGEST_MODE}"
+            exit 1
           fi
 
       - name: Run crawler
