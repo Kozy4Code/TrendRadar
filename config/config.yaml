@@ -1,7 +1,7 @@
 # ═══════════════════════════════════════════════════════════════
 #         TrendRadar 配置 —— Kozy 每日 AI/科技精选推送 定制版
 #
-#   基于上游 config.yaml v2.3.0 修改，改动处标注 [定制]
+#   基于上游 config.yaml v2.4.0 修改，改动处标注 [定制]
 #   上游参考: https://github.com/sansan0/TrendRadar/blob/master/config/config.yaml
 #   用法: 全文复制，粘贴覆盖 fork 仓库的 config/config.yaml
 # ═══════════════════════════════════════════════════════════════
@@ -273,6 +273,8 @@ ai_translation:
   enabled: false
   language: "中文"
   prompt_file: "ai_translation_prompt.txt"
+  batch_size: 100
+  batch_interval: 2
   scope:
     hotlist: false
     rss: true
